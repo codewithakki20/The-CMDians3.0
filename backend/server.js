@@ -23,9 +23,12 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
 const corsOptions = {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    credentials: true,
-}
+  origin: [
+    "http://localhost:3000", 
+    "https://the-cm-dians3-0-wqp5.vercel.app"  
+  ],
+  credentials: true,
+};
 app.use(cors(corsOptions));
 
 // yha pr apni api ayengi

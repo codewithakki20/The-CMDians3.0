@@ -1,6 +1,2 @@
-let IS_PROD = false;
-const server = IS_PROD
-  ? "https://the-cmdian-memories.onrender.com"
-  : "http://localhost:5000";
-
+const server = process.env.REACT_APP_SERVER_URL || "http://localhost:8000";
 export default server;

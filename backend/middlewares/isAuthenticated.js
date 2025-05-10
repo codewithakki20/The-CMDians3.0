@@ -7,30 +7,30 @@ const isAuthenticated = (req, res, next) => {
 
         if (!token) {
             return res.status(401).json({
-                message: 'User not authenticated',
+                message: 'User not authenticated. No token provided.',
                 success: false
             });
         }
 
         // Verify the token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+            if (err) {
+                return res.status(401).json({
+                    message: 'Invalid or expired token',
+                    success: false
+                });
+            }
 
-        if (!decoded) {
-            return res.status(401).json({
-                message: 'Invalid token',
-                success: false
-            });
-        }
+            // Attach the user ID from the token to the request object
+            req.userId = decoded.userId;
 
-        // Attach the user ID from the token to the request object
-        req.userId = decoded.userId;
-
-        // Proceed to the next middleware or route handler
-        next();
+            // Proceed to the next middleware or route handler
+            next();
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({
-            message: 'Server Error',
+            message: 'Server error while processing authentication',
             success: false
         });
     }

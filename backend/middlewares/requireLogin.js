@@ -1,24 +1,39 @@
 import jwt from "jsonwebtoken";
-const requireLogin  = async (req,res,next)=>{
+
+const requireLogin = (req, res, next) => {
     try {
-        const token = req.cookies.token;
-        if(!token){
+        // Get the token from cookies
+        const token = req.cookies.token || req.headers.authorization?.split(' ')[1]; // In case token is sent via Authorization header as Bearer <token>
+
+        if (!token) {
             return res.status(401).json({
-                message:'User not authenticated',
-                success:false
+                message: 'User not authenticated',
+                success: false
             });
         }
-        const decode = await jwt.verify(token, process.env.JWT_SECRET);
-        if(!decode){
+
+        // Verify the token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        if (!decoded) {
             return res.status(401).json({
-                message:'Invalid',
-                success:false
+                message: 'Invalid token',
+                success: false
             });
         }
-        req.user = { id: decode.userId };
+
+        // Attach user info to request
+        req.user = { id: decoded.userId };
+
+        // Proceed to the next middleware or route handler
         next();
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({
+            message: 'Server error while verifying token',
+            success: false
+        });
     }
-}
-export default requireLogin ;
+};
+
+export default requireLogin;
